@@ -3,10 +3,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomePage from './pages/HomePage';
 import FourOhFourPage from './pages/FourOhFourPage';
 import DogDetailPage from './pages/DogDetailPage';
-import { CoreProvider } from './context/userContext';
+import { CoreProvider } from './context/coreContext';
 import Layout from './components/Layout';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -16,7 +22,7 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/search" />
+              <Route path="/search" element={<HomePage />} />
               <Route path="/dog/:id" element={<DogDetailPage />} />
               <Route path="*" element={<FourOhFourPage />} />
             </Route>
