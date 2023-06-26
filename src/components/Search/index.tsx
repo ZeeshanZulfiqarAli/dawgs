@@ -2,30 +2,43 @@ import React, { useEffect, useState } from 'react';
 import searchIcon from '../../assets/search.svg';
 import classNames from 'classnames';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { getImages } from '../../api/dogs';
 import { useCore, useCoreDispatch } from '../../context/coreContext';
-import { Order } from '../../types/dogs';
 
 interface SearchProps {
   className?: string;
-  order?: Order;
 }
 
-const Search = ({ className, order }: SearchProps) => {
+const Search = ({ className }: SearchProps) => {
   const [initialQueryParam] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(initialQueryParam.get('q') || '');
   const coreStore = useCore();
-  const { pagination } = coreStore.dogs;
+  const { pagination, order } = coreStore.dogs;
   const coreDispatch = useCoreDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { fetchStatus, data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ['images', order],
+    queryKey: ['images', searchQuery, order],
     queryFn: ({ pageParam = pagination }) =>
       getImages(searchQuery, pageParam?.page || 0, 10, order),
     // The query will not execute until the query param exists
     enabled: !!initialQueryParam.get('q'),
+    getNextPageParam: (lastPage) => {
+      const potentialNextPage = lastPage.paginationPage + 1;
+      if (potentialNextPage * 10 <= lastPage.paginationCount) {
+        return { page: potentialNextPage, count: lastPage.paginationCount };
+      } else {
+        return;
+      }
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (firstPage.paginationPage === 0) {
+        return;
+      }
+      return { page: firstPage.paginationPage - 1, count: firstPage.paginationCount };
+    },
   });
 
   useEffect(() => {
@@ -48,7 +61,14 @@ const Search = ({ className, order }: SearchProps) => {
   }, []);
 
   useEffect(() => {
+    // data &&
+    //   data.pages.length === 1 &&
+    //   queryClient.setQueryData(['images', searchQuery, order], (o) => {
+    //     console.log('setquerydata', o);
+    //     return { ...o, pageParams: [{ page: 0, count: null }] };
+    //   });
     if (data && pagination.page !== data.pages[data.pages.length - 1].paginationPage) {
+      // console.log('fetch next ', pagination);
       fetchNextPage({ pageParam: pagination });
     }
   }, [pagination]);
@@ -67,7 +87,7 @@ const Search = ({ className, order }: SearchProps) => {
     if (e.key === 'Enter' && searchQuery) {
       e.preventDefault();
       e.stopPropagation();
-      e.target.blur();
+      (e.target as HTMLInputElement).blur();
       handleSearch();
     }
   };

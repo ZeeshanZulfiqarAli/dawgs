@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Search from '../components/Search';
 import { useCore, useCoreDispatch } from '../context/coreContext';
 import ResultRow from '../components/ResultRow';
@@ -9,12 +9,12 @@ import Loader from '../components/Loader';
 const HomePage = () => {
   const coreStore = useCore();
   const coreDispatch = useCoreDispatch();
-  const { data, fetchStatus } = coreStore.dogs;
+  const { data, fetchStatus, order } = coreStore.dogs;
 
-  const [isAsc, setIsAsc] = useState(true);
+  const isAsc = order === 'ASC';
 
   const handleSortToggle = () => {
-    setIsAsc((flag) => !flag);
+    coreDispatch({ type: 'CHANGE_ORDER', payload: isAsc ? 'DESC' : 'ASC' });
   };
 
   const handleLoadMore = () => {
@@ -25,7 +25,7 @@ const HomePage = () => {
 
   return (
     <div className="container m-auto flex flex-col items-center justify-center my-20">
-      <Search className="w-3/5 max-w-2xl" order={isAsc ? 'ASC' : 'DESC'} />
+      <Search className="w-3/5 max-w-2xl" />
       {data.length > 0 && (
         <div className="flex justify-end w-full px-8 mt-16">
           <button
@@ -46,7 +46,8 @@ const HomePage = () => {
       {data.length > 0 && (
         <button
           onClick={handleLoadMore}
-          className="mt-14 px-4 py-3 rounded-md bg-zinc-200 hover:bg-zinc-300"
+          className="mt-14 px-4 py-3 rounded-md bg-zinc-200 hover:bg-zinc-300 disabled:bg-zinc-100 disabled:text-gray-300"
+          disabled={fetchStatus === 'fetching'}
         >
           Load More
         </button>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage';
 import FourOhFourPage from './pages/FourOhFourPage';
 import DogDetailPage from './pages/DogDetailPage';
@@ -28,6 +29,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        <Toaster />
       </QueryClientProvider>
     </CoreProvider>
   );

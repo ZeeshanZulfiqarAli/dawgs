@@ -1,7 +1,7 @@
 // interface action
 
 import { FetchStatus } from '@tanstack/react-query';
-import { IImage } from './dogs';
+import { IImage, Order } from './dogs';
 
 export interface ICoreStore {
   dogs: {
@@ -11,5 +11,6 @@ export interface ICoreStore {
       page: number;
       count: number | null;
     };
+    order: Order;
   };
 }

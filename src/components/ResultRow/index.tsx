@@ -1,4 +1,3 @@
-import React from 'react';
 import { IImage } from '../../types/dogs';
 
 interface ResultRowProps extends IImage {}

@@ -2,7 +2,12 @@ import { ReactNode, createContext, useContext, useReducer } from 'react';
 import { ICoreStore } from '../types/context';
 
 const initialStore: ICoreStore = {
-  dogs: { data: [], fetchStatus: undefined, pagination: { page: 0, count: null } },
+  dogs: {
+    data: [],
+    fetchStatus: undefined,
+    pagination: { page: 0, count: null },
+    order: 'ASC',
+  },
 };
 
 const CoreContext = createContext<ICoreStore>(initialStore);
@@ -33,7 +38,7 @@ export function useCoreDispatch() {
   return useContext(CoreDispatchContext);
 }
 
-function coreReducer(coreStore: ICoreStore, action) {
+function coreReducer(coreStore: ICoreStore, action: any) {
   switch (action.type) {
     case 'ADD_IMAGES': {
       return {
@@ -71,6 +76,19 @@ function coreReducer(coreStore: ICoreStore, action) {
             ...coreStore.dogs.pagination,
             page: coreStore.dogs.pagination.page + 1,
           },
+        },
+      };
+    }
+    case 'CHANGE_ORDER': {
+      return {
+        ...coreStore,
+        dogs: {
+          ...coreStore.dogs,
+          data: [...initialStore.dogs.data],
+          pagination: {
+            ...initialStore.dogs.pagination,
+          },
+          order: action.payload,
         },
       };
     }
