@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Search from '../components/Search';
 import { useCore, useCoreDispatch } from '../context/coreContext';
 import ResultRow from '../components/ResultRow';
@@ -9,8 +8,9 @@ import Loader from '../components/Loader';
 const HomePage = () => {
   const coreStore = useCore();
   const coreDispatch = useCoreDispatch();
-  const { data, fetchStatus, order } = coreStore.dogs;
+  const { data, fetchStatus, order, pagination } = coreStore.dogs;
 
+  const hasNextPage = pagination.count && pagination.page * 10 < pagination.count;
   const isAsc = order === 'ASC';
 
   const handleSortToggle = () => {
@@ -47,7 +47,7 @@ const HomePage = () => {
         <button
           onClick={handleLoadMore}
           className="mt-14 px-4 py-3 rounded-md bg-zinc-200 hover:bg-zinc-300 disabled:bg-zinc-100 disabled:text-gray-300"
-          disabled={fetchStatus === 'fetching'}
+          disabled={fetchStatus === 'fetching' || !hasNextPage}
         >
           Load More
         </button>

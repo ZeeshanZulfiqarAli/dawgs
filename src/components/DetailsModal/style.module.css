@@ -1,0 +1,11 @@
+.crossButton {
+  display: none;
+}
+.detailsModal:hover > .crossButton {
+  display: block;
+  opacity: 50%;
+}
+
+.crossButton:hover {
+  opacity: 80% !important;
+}

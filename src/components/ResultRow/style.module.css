@@ -1,0 +1,11 @@
+.infoButton {
+  display: none;
+}
+.resultContainer:hover > .infoButton {
+  display: block;
+  opacity: 50%;
+}
+
+.infoButton:hover {
+  opacity: 80% !important;
+}

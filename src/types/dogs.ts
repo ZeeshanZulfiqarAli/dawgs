@@ -10,7 +10,7 @@ export interface IBreed {
     imperial: string;
     metric: string;
   };
-  country_code: string;
+  origin: string;
   breed_group: string;
   life_span: string;
   temperament: string;
