@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import searchIcon from '../../assets/search.svg';
 import classNames from 'classnames';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getImages } from '../../api/dogs';
 import { useCore, useCoreDispatch } from '../../context/coreContext';
 
@@ -15,12 +15,12 @@ const Search = ({ className }: SearchProps) => {
   const [searchQuery, setSearchQuery] = useState(initialQueryParam.get('q') || '');
   const coreStore = useCore();
   const { pagination, order } = coreStore.dogs;
+  const previousOrder = useRef(order);
   const coreDispatch = useCoreDispatch();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const { fetchStatus, data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ['images', searchQuery, order],
+    queryKey: ['images', initialQueryParam.get('q'), order],
     queryFn: ({ pageParam = pagination }) =>
       getImages(searchQuery, pageParam?.page || 0, 10, order),
     // The query will not execute until the query param exists
@@ -42,6 +42,12 @@ const Search = ({ className }: SearchProps) => {
   });
 
   useEffect(() => {
+    if (!initialQueryParam.has('q')) {
+      setSearchQuery('');
+    }
+  }, [initialQueryParam]);
+
+  useEffect(() => {
     if (data && data.pages[0]) {
       const { paginationPage, paginationCount } = data.pages[data.pages.length - 1];
       const imageData = data.pages.reduce(
@@ -57,21 +63,15 @@ const Search = ({ className }: SearchProps) => {
   }, [data]);
 
   useEffect(() => {
-    if (searchQuery) handleSearch();
-  }, []);
-
-  useEffect(() => {
-    // data &&
-    //   data.pages.length === 1 &&
-    //   queryClient.setQueryData(['images', searchQuery, order], (o) => {
-    //     console.log('setquerydata', o);
-    //     return { ...o, pageParams: [{ page: 0, count: null }] };
-    //   });
-    if (data && pagination.page !== data.pages[data.pages.length - 1].paginationPage) {
-      // console.log('fetch next ', pagination);
+    if (
+      data &&
+      pagination.page !== data.pages[data.pages.length - 1].paginationPage &&
+      order === previousOrder.current // Work around to prevent this function to run on order change
+    ) {
       fetchNextPage({ pageParam: pagination });
     }
-  }, [pagination]);
+    previousOrder.current = order;
+  }, [pagination, order]);
 
   useEffect(() => {
     if (fetchStatus) {

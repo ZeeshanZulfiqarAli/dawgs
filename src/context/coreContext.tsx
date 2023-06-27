@@ -92,6 +92,11 @@ function coreReducer(coreStore: ICoreStore, action: any) {
         },
       };
     }
+    case 'RESET_ALL': {
+      return {
+        ...initialStore,
+      };
+    }
     default: {
       throw Error('Unknown action: ' + action.type);
     }

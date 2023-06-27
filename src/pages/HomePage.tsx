@@ -4,10 +4,13 @@ import ResultRow from '../components/ResultRow';
 import sortUp from '../assets/arrow-up-a-z-solid.svg';
 import sortDown from '../assets/arrow-down-a-z-solid.svg';
 import Loader from '../components/Loader';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const HomePage = () => {
   const coreStore = useCore();
   const coreDispatch = useCoreDispatch();
+  const [initialQueryParam] = useSearchParams();
   const { data, fetchStatus, order, pagination } = coreStore.dogs;
 
   const hasNextPage = pagination.count && pagination.page * 10 < pagination.count;
@@ -22,6 +25,14 @@ const HomePage = () => {
       type: 'INCREMENT_IMAGE_PAGE',
     });
   };
+
+  useEffect(() => {
+    if (!initialQueryParam.has('q')) {
+      coreDispatch({
+        type: 'RESET_ALL',
+      });
+    }
+  }, [initialQueryParam]);
 
   return (
     <div className="container m-auto flex flex-col items-center justify-center my-20">
